@@ -1,12 +1,8 @@
+import org.joml.Matrix4f;
 import org.lwjgl.*;
 import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.*;
 import org.lwjgl.system.*;
-
-import render.Mesh;
-import render.MeshLoader;
-import render.Texture;
-import render.shader.ShaderTextured;
 
 import java.nio.*;
 
@@ -21,6 +17,9 @@ public class App {
 
     // The window handle
 	private long window;
+
+	private int width = 600;
+	private int height = 600;
 
 
     public void run() {
@@ -53,7 +52,7 @@ public class App {
 		glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE); // the window will be resizable
 
 		// Create the window
-		window = glfwCreateWindow(600, 600, "Hello World!", NULL, NULL);
+		window = glfwCreateWindow(width, height, "Hello World!", NULL, NULL);
 		if ( window == NULL )
 			throw new RuntimeException("Failed to create the GLFW window");
 
@@ -99,44 +98,63 @@ public class App {
 		// bindings available for use.
 		GL.createCapabilities();
 
+		GL11.glEnable(GL11.GL_TEXTURE_2D);
+
+
 		// Set the clear color
 		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
-        // glViewport(0, 0, 600, 600);
-        float[] vertices = {-0.5f,-0.5f,0f,
-            0.5f, -0.5f, 0f,
-            0f,0.5f,0f};
-        int[] indices = {0,1,2};
+		float[] vertices = {
+			-0.5f, 0.5f, 0f, //V0
+			0.5f, 0.5f, 0f, //V1
+			0.5f, -0.5f, 0f, //V2
 
-        float[] uvs = {0,0,1,0,0.5f,1};
+			-0.5f, -0.5f, 0f, //V3
+		};
 
-        ShaderTextured shader = new ShaderTextured();
-        shader.start();
+		float[] textureCoords = {
+			0, 0,
+			1, 0,
+			1, 1,
 
-        Mesh meshmeyek = MeshLoader.createMesh(vertices, uvs,indices); //Kudos if you got that reference
+			0, 1,
+		};
 
+		int[] indices = {
+			0, 1, 2,
+			2, 3, 0
+		};
+
+		model model = new model(vertices, textureCoords, indices);
+
+		//create Texture
+		Texture texture = new Texture("images.jpg");
+		Shader shader = new Shader("shader");
+
+		Matrix4f projection = new Matrix4f().ortho2D(-width/2, width/2, -height/2, height/2);
+
+		Matrix4f scale = new Matrix4f().scale(250, 170, 1);
+
+		Matrix4f translate = new Matrix4f().translate(0.1f, 0, 0);
+
+		Matrix4f target = new Matrix4f();
+		projection.mul(scale, target);
+		target.mul(translate);
 
 		// Run the rendering loop until the user has attempted to close
 		// the window or has pressed the ESCAPE key.
-		int texture = Texture.loadTexture("images.jpg");
-
         while(!GLFW.glfwWindowShouldClose(window)) {
 			GL11.glClear(GL11.GL_COLOR_BUFFER_BIT|GL11.GL_DEPTH_BUFFER_BIT);
-			
-			GL30.glBindVertexArray(meshmeyek.getVaoID());
-			GL20.glEnableVertexAttribArray(0);
-			GL20.glEnableVertexAttribArray(1);
-			GL13.glActiveTexture(GL13.GL_TEXTURE0);
-			GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture);
-			GL11.glDrawElements(GL11.GL_TRIANGLES, meshmeyek.getVertexCount(), GL11.GL_UNSIGNED_INT,0);
-			GL20.glDisableVertexAttribArray(0);
-			GL20.glDisableVertexAttribArray(1);
-			GL30.glBindVertexArray(0);
-			
+	
+			shader.bind();
+			shader.setUniform("sample", 0);
+			shader.setUniform("projection", target);
+			model.render();
+			texture.bind(0);
+
 			GLFW.glfwSwapBuffers(window);
 			GLFW.glfwPollEvents();
         }
-        shader.stop();
 	}
 
     public static void main(String[] args) throws Exception {
