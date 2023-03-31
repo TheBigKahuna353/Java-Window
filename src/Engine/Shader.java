@@ -1,3 +1,4 @@
+package Engine;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.nio.FloatBuffer;
@@ -11,9 +12,11 @@ public class Shader {
     private int program;
     private int vs;
     private int fs;
+    private FloatBuffer buffer;
 
     public Shader(String filename) {
         program = GL20.glCreateProgram();
+        buffer = BufferUtils.createFloatBuffer(16);
         if (program == 0) {
             System.err.println("Shader creation failed: Could not find valid memory location in constructor");
             System.exit(1);
@@ -64,7 +67,6 @@ public class Shader {
 
     public void setUniform(String name, Matrix4f value) {
         int location = GL20.glGetUniformLocation(program, name);
-        FloatBuffer buffer = BufferUtils.createFloatBuffer(16);
         value.get(buffer);
         if (location >= 0) {
             GL20.glUniformMatrix4fv(location, false, buffer);

@@ -1,3 +1,4 @@
+package Engine;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.BufferUtils;
@@ -5,25 +6,32 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import org.lwjgl.opengl.GL20;
 
-public class model {
-    
+public class Model {
+    /* This is much more efficient for drawing because, although the bus between the CPU and the GPU is very wide,
+    a bottleneck for drawing performance is created when drawing operations stall to send OpenGL commands from the 
+    CPU to the GPU. To avoid this we try to keep as much data and processing on the graphics hardware as we can.  */
+
+
     private int drawCount;
     private int vID;
     private int tID;
 
-    private int iID;
+    private int iID; 
 
-    public model(float[] vertices, float[] texture, int[] indices) {
+    public Model(float[] vertices, float[] texture, int[] indices) {
         drawCount = indices.length;
 
+        //send vertices to the GPU
         vID = GL15.glGenBuffers();
-        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vID);
-        GL15.glBufferData(GL15.GL_ARRAY_BUFFER, createFloatBuffer(vertices), GL15.GL_STATIC_DRAW);
+        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vID);   // name of the buffer, and the type of buffer
+        GL15.glBufferData(GL15.GL_ARRAY_BUFFER, createFloatBuffer(vertices), GL15.GL_STATIC_DRAW);  // put data into buffer
 
+        //send texture coordinates to the GPU
         tID = GL15.glGenBuffers();
         GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, tID);
         GL15.glBufferData(GL15.GL_ARRAY_BUFFER, createFloatBuffer(texture), GL15.GL_STATIC_DRAW);
 
+        //send indices to the GPU
         iID = GL15.glGenBuffers();
         GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, iID);
 
@@ -33,6 +41,7 @@ public class model {
 
         GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, buffer, GL15.GL_STATIC_DRAW);
 
+        // unbind the buffer, dont want to accidentally change it
         GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
         GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
     }
