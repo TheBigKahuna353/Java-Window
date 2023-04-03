@@ -56,8 +56,10 @@ public class App {
 
 		TileRenderer renderer = new TileRenderer();
 
-		World world = new World(10, 10);
+		World world = new World(30, 20);
 		world.setTile(0, 0, (byte)2);
+
+
 
 		double frameCap = 1.0/60.0;
 		double frameTime = Timer.getTime();

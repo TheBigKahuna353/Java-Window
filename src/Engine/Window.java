@@ -98,6 +98,8 @@ public class Window {
 
 		// Make the OpenGL context current
 		glfwMakeContextCurrent(window);
+
+		
 		// Enable v-sync
 		glfwSwapInterval(1);
 

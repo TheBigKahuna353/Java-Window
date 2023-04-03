@@ -41,12 +41,11 @@ public class Texture {
                 throw new RuntimeException("Image file [" + filename + "] not loaded: " + STBImage.stbi_failure_reason());
             }
 
-            id = GL11.glGenTextures();
             this.width = w.get();
             this.height = h.get();
         }
 
-
+        id = GL11.glGenTextures();
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, id);
 
         GL11.glTexParameterf(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);

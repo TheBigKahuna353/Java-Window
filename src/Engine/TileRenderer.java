@@ -9,6 +9,7 @@ public class TileRenderer {
 
     private Model model;
 
+
     public TileRenderer() {
         textures = new HashMap<String, Texture>();
 
@@ -46,22 +47,31 @@ public class TileRenderer {
         }
     }
 
-    public void renderTile(byte id, int x, int y, Shader shader, Matrix4f world, Camera camera) {
+
+
+    public int renderTile(byte id, int x, int y, Shader shader, Matrix4f world, Camera camera) {
+        // if (!camera.inView(IndexToScreenPosition(x, y, world))) {
+        //     return 0;
+        // }
         shader.bind();
         if (textures.containsKey(Tile.tiles[id].getTexture())) {
             textures.get(Tile.tiles[id].getTexture()).bind(0);
         } else {
             textures.get("missing").bind(0);
         }
+
         Matrix4f tile_pos = new Matrix4f().translate(x*2, -y*2, 0);
+
         Matrix4f target = new Matrix4f();
         camera.getProjection().mul(world, target);
         target.mul(tile_pos);
+        
 
         shader.setUniform("sample", 0);
         shader.setUniform("projection", target);
 
         model.render();
+        return 1;
     }
 
 }
